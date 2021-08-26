@@ -27,6 +27,7 @@ soup_sources = [
   'cookies/soup-cookie.c',
   'cookies/soup-cookie-jar.c',
   'cookies/soup-cookie-jar-db.c',
+  'cookies/soup-cookie-jar-visionect.c',
   'cookies/soup-cookie-jar-text.c',
 
   'hsts/soup-hsts-enforcer.c',
@@ -104,6 +105,7 @@ soup_introspection_headers = [
   'cookies/soup-cookie.h',
   'cookies/soup-cookie-jar.h',
   'cookies/soup-cookie-jar-db.h',
+  'cookies/soup-cookie-jar-visionect.h',
   'cookies/soup-cookie-jar-text.h',
 
   'hsts/soup-hsts-enforcer.h',
@@ -187,6 +189,7 @@ deps = [
   gssapi_dep,
   libz_dep,
   libnghttp2_dep,
+  pq_dep,
 ]
 
 libsoup_includes = [

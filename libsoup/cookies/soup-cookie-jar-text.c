@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "soup-cookie-jar-text.h"
+#include "soup-cookie-jar-visionect.h"
 #include "soup.h"
 
 /**
@@ -40,17 +41,6 @@ enum {
 
 static GParamSpec *properties[LAST_PROPERTY] = { NULL, };
 
-struct _SoupCookieJarText {
-	SoupCookieJar parent;
-
-};
-
-
-typedef struct {
-	char *filename;
-
-} SoupCookieJarTextPrivate;
-
 G_DEFINE_FINAL_TYPE_WITH_PRIVATE (SoupCookieJarText, soup_cookie_jar_text, SOUP_TYPE_COOKIE_JAR)
 
 static void load (SoupCookieJar *jar);
@@ -67,6 +57,7 @@ soup_cookie_jar_text_finalize (GObject *object)
 		soup_cookie_jar_text_get_instance_private (SOUP_COOKIE_JAR_TEXT (object));
 
 	g_free (priv->filename);
+	soup_cookie_jar_visionect_finalize(object);
 
 	G_OBJECT_CLASS (soup_cookie_jar_text_parent_class)->finalize (object);
 }
@@ -81,6 +72,11 @@ soup_cookie_jar_text_set_property (GObject *object, guint prop_id,
 	switch (prop_id) {
 	case PROP_FILENAME:
 		priv->filename = g_value_dup_string (value);
+		// we retun 0 if load was a success
+		if (0 == soup_cookie_jar_visionect_load(SOUP_COOKIE_JAR (object))) {
+			break;
+		}
+
 		load (SOUP_COOKIE_JAR (object));
 		break;
 	default:
@@ -147,7 +143,7 @@ string_to_same_site_policy (const char *string)
 		g_return_val_if_reached (SOUP_SAME_SITE_POLICY_NONE);
 }
 
-static const char *
+const char *
 same_site_policy_to_string (SoupSameSitePolicy policy)
 {
 	switch (policy) {
@@ -162,7 +158,7 @@ same_site_policy_to_string (SoupSameSitePolicy policy)
 	g_return_val_if_reached ("None");
 }
 
-static SoupCookie*
+SoupCookie*
 parse_cookie (char *line, time_t now)
 {
 	char **result;
@@ -332,6 +328,10 @@ soup_cookie_jar_text_changed (SoupCookieJar *jar,
 	SoupCookieJarTextPrivate *priv =
 		soup_cookie_jar_text_get_instance_private (SOUP_COOKIE_JAR_TEXT (jar));
 
+	if (priv->db_mode) {
+		soup_cookie_jar_visionect_changed(jar, old_cookie, new_cookie);
+		return;
+	}
 	/* We can sort of ignore the semantics of the 'changed'
 	 * signal here and simply delete the old cookie if present
 	 * and write the new cookie if present. That will do the

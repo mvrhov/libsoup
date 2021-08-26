@@ -110,6 +110,8 @@ glib_deps = [glib_dep, gmodule_dep, gobject_dep, gio_dep]
 
 libnghttp2_dep = dependency('libnghttp2')
 
+pq_dep = dependency('libpq')
+
 sqlite_dep = dependency('sqlite3', required: false)
 
 # Fallback check for sqlite, not all platforms ship pkg-config file
